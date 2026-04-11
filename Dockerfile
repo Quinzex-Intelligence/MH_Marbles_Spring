@@ -1,4 +1,4 @@
-# ---Stage 1: Build the application---
+# --- Stage 1: Build ---
 FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 WORKDIR /build
 
@@ -7,15 +7,15 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-# ---Stage 2: Runtime---
-FROM eclipse-temurin:17-jre-alpine
+# --- Stage 2: Runtime ---
+FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
 COPY --from=builder /build/target/*.jar app.jar
 
-ENV JAVA_OPTS="-Xms1g -Xmx2g"
+ENV JAVA_OPTS="-Xms512m -Xmx1g"
 
 EXPOSE 8080
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar app.jar" ]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
