@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: ap-south-2
   ECR_REPO: mhmarbles/spring
-  APP_DIR: /home/ubuntu/ubuntu
+  APP_DIR: /home/ubuntu/spring
 
 jobs:
   build-and-deploy:
