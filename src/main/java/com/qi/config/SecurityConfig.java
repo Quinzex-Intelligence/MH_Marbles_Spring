@@ -30,7 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.cors(cors->cors.configurationSource(corsConfigurationSource())).csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth->auth.requestMatchers("/api/spring/auth/**").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(auth->auth.requestMatchers("/api/spring/auth/**","/api/spring/blogs/all").permitAll().anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
