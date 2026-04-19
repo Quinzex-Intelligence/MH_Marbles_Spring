@@ -1,21 +1,27 @@
-# --- Stage 1: Build ---
-FROM maven:3.9-eclipse-temurin-17 AS builder
-WORKDIR /build
-
-COPY pom.xml .
-COPY src ./src
-
-RUN mvn clean package -DskipTests
-
-# --- Stage 2: Runtime ---
-FROM eclipse-temurin:17-jre-jammy
+# -------- Stage 1: Build --------
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-COPY --from=builder /build/target/*.jar app.jar
+# 1. Copy only pom.xml first
+COPY pom.xml .
 
-ENV JAVA_OPTS="-Xms512m -Xmx1g"
+# 2. Download dependencies
+RUN mvn -B -q -e -DskipTests dependency:go-offline
 
-EXPOSE 8080
+# 3. Copy source code
+COPY src ./src
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# 4. Build the application
+RUN mvn -B -DskipTests package
+
+# -------- Stage 2: Runtime --------
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+# Copy built jar from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
